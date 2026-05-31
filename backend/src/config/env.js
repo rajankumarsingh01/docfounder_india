@@ -13,10 +13,10 @@ const requiredEnvVars = [
   "JWT_SECRET",
   "JWT_EXPIRE",
   "EMAIL_HOST",
-"EMAIL_PORT",
-"EMAIL_USER",
-"EMAIL_PASS",
-"CLIENT_URL"
+  "EMAIL_PORT",
+  "EMAIL_USER",
+  "EMAIL_PASS",
+  "CLIENT_URL"
 ];
 
 /**
@@ -59,15 +59,8 @@ module.exports = {
   JWT_EXPIRE:
     process.env.JWT_EXPIRE,
 
-    EMAIL_HOST:
-  process.env.EMAIL_HOST,
-
-EMAIL_PORT:
-  process.env.EMAIL_PORT,
-
-EMAIL_USER:
-  process.env.EMAIL_USER,
-
-EMAIL_PASS:
-  process.env.EMAIL_PASS,
+  EMAIL_HOST: process.env.EMAIL_HOST,
+  EMAIL_PORT: process.env.EMAIL_PORT || 587,
+  EMAIL_USER: process.env.EMAIL_USER,
+  EMAIL_PASS: process.env.EMAIL_PASS,
 };

@@ -11,25 +11,15 @@ const sendEmail =
     html
   }) => {
 
-    const transporter =
-      nodemailer.createTransport({
-
-        host:
-          env.EMAIL_HOST,
-
-        port:
-          env.EMAIL_PORT,
-
-        secure: false,
-
-        auth: {
-          user:
-            env.EMAIL_USER,
-
-          pass:
-            env.EMAIL_PASS
-        }
-      });
+  const transporter = nodemailer.createTransport({
+  host: env.EMAIL_HOST,
+  port: env.EMAIL_PORT,
+  secure: env.EMAIL_PORT == 465, // 465 pe true, 587 pe false
+  auth: {
+    user: env.EMAIL_USER,
+    pass: env.EMAIL_PASS
+  }
+});
 
     await transporter.sendMail({
       from: `"DocFinder" <${env.EMAIL_USER}>`,
