@@ -1,25 +1,22 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const env = require("../config/env");
 
-const sendEmail = async ({ to, subject, html }) => {
-  const transporter = nodemailer.createTransport({
-    host: env.EMAIL_HOST,
-  port: env.EMAIL_PORT,
-  secure: env.EMAIL_PORT == 465,
-  auth: {
-    user: env.EMAIL_USER,
-    pass: env.EMAIL_PASS,
-    },
-  });
+const resend = new Resend(env.RESEND_API_KEY);
 
-  await transporter.sendMail({
-    from: `"DocFinder" <${env.EMAIL_USER}>`,
-    to,
+const sendEmail = async ({ to, subject, html }) => {
+  const { error } = await resend.emails.send({
+    from: "DocFinder <onboarding@resend.dev>",
+    to: "developerrajan2005@gmail.com",
     subject,
     html,
   });
 
-  console.log("✅ Email sent to:", to);
+  if (error) {
+    console.error("❌ Resend error:", error);
+    throw new Error(error.message);
+  }
+
+  console.log("✅ Email sent!");
 };
 
 module.exports = sendEmail;
