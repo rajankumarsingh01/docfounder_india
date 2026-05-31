@@ -193,41 +193,30 @@ const loginUser =
     /**
      * Send Email
      */
-    await sendEmail({
-
-      to: user.email,
-
-      subject:
-        "Reset Your Password - DocFinder",
-
-      html: `
-        <div style="font-family:sans-serif;">
-          <h2>Reset Your Password</h2>
-
-          <p>
-            Click the button below to reset your password.
-          </p>
-
-          <a
-            href="${resetUrl}"
-            style="
-              display:inline-block;
-              padding:12px 20px;
-              background:#e8352a;
-              color:white;
-              text-decoration:none;
-              border-radius:8px;
-            "
-          >
-            Reset Password
-          </a>
-
-          <p>
-            This link expires in 15 minutes.
-          </p>
-        </div>
-      `
-    });
+ sendEmail({
+  to: user.email,
+  subject: "Reset Your Password - DocFinder",
+  html: `
+    <div style="font-family:sans-serif;">
+      <h2>Reset Your Password</h2>
+      <p>Click the button below to reset your password.</p>
+      
+        href="${resetUrl}"
+        style="
+          display:inline-block;
+          padding:12px 20px;
+          background:#e8352a;
+          color:white;
+          text-decoration:none;
+          border-radius:8px;
+        "
+      >
+        Reset Password
+      </a>
+      <p>This link expires in 15 minutes.</p>
+    </div>
+  `
+}).catch(err => console.error("Email error (forgot-password):", err));
 
     return true;
   };
