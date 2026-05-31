@@ -76,6 +76,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+      "https://docfounder-india.vercel.app",
       process.env.CLIENT_URL, // Vercel URL
     ],
     credentials: true,
