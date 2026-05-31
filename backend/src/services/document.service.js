@@ -220,16 +220,12 @@ const claimDocument = async (
   /**
    * Send email to uploader
    */
-  await sendClaimRequestEmail({
-
-    uploader:
-      document.uploadedBy,
-
-    document,
-
-    claimerInfo:
-      document.claimerInfo
-  });
+ // REPLACE karo is se
+sendClaimRequestEmail({
+  uploader: document.uploadedBy,
+  document,
+  claimerInfo: document.claimerInfo
+}).catch(err => console.error("Email error (claim request):", err));
 
   return document;
 };
@@ -384,14 +380,11 @@ const approveClaim = async (
    */
   if (doc.claimedBy) {
 
-    await sendClaimApprovedEmail({
-
-      claimer:
-        doc.claimedBy,
-
-      document:
-        doc
-    });
+    // REPLACE karo is se
+sendClaimApprovedEmail({
+  claimer: doc.claimedBy,
+  document: doc
+}).catch(err => console.error("Email error (approve):", err));
   }
 
   return doc;
@@ -467,14 +460,11 @@ const rejectClaim = async (
    */
   if (doc.claimedBy) {
 
-    await sendClaimRejectedEmail({
-
-      claimer:
-        doc.claimedBy,
-
-      document:
-        doc
-    });
+   // REPLACE karo is se
+sendClaimRejectedEmail({
+  claimer: doc.claimedBy,
+  document: doc
+}).catch(err => console.error("Email error (reject):", err));
   }
 
   /**
