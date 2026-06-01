@@ -37,7 +37,26 @@ const searchDocuments = async (filters) => {
     query.partialName = { $regex: filters.name, $options: "i" };
   }
 
-  return await Document.find(query).sort({ createdAt: -1 });
+  const page  = parseInt(filters.page)  || 1;
+  const limit = parseInt(filters.limit) || 9;
+  const skip  = (page - 1) * limit;
+
+  const [documents, total] = await Promise.all([
+    Document.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Document.countDocuments(query),
+  ]);
+
+  return {
+    documents,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    },
+  };
 };
 
 /**

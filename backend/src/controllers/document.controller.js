@@ -35,15 +35,16 @@ const uploadDocument = asyncHandler(async (req, res) => {
  * Search Documents (public)
  */
 const getDocuments = asyncHandler(async (req, res) => {
-  const documents = await documentService.searchDocuments(req.query);
+  const { documents, pagination } = await documentService.searchDocuments(req.query);
 
-  // Pass viewerId so claimer sees finderContact if they've claimed
   const viewerId = req.user?._id;
   const sanitized = documents.map((doc) => documentDTO(doc, { viewerId }));
 
-  return res.json(new ApiResponse(true, "Documents Fetched", sanitized));
+  return res.json(new ApiResponse(true, "Documents Fetched", {
+    documents: sanitized,
+    pagination,
+  }));
 });
-
 /**
  * Get Document By ID (owner only — for edit page)
  */
