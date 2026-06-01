@@ -620,8 +620,6 @@
 
 
 
-
-
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
@@ -684,7 +682,6 @@ function ClaimModal({ doc, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
   const [done, setDone]       = useState(false);
-  const [revealedContact, setRevealedContact] = useState(null);
 
   const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -692,8 +689,7 @@ function ClaimModal({ doc, onClose, onSuccess }) {
     if (!form.name.trim() || !form.reason.trim()) { setError("Name and reason are required."); return; }
     setError(""); setLoading(true);
     try {
-      const res = await api.patch(`/documents/${doc.id}/claim`, form);
-      setRevealedContact(res.data.data.finderContact);
+      await api.patch(`/documents/${doc.id}/claim`, form);
       setDone(true);
     } catch (err) {
       setError(err.response?.data?.message || "Claim failed. Try again.");
@@ -704,6 +700,7 @@ function ClaimModal({ doc, onClose, onSuccess }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box claim-modal" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}><span>✕</span></button>
+
         {!done ? (
           <>
             <div className="claim-modal-header">
@@ -724,10 +721,12 @@ function ClaimModal({ doc, onClose, onSuccess }) {
                 </p>
               </div>
             </div>
+
             <div className="claim-info-banner">
               <div className="claim-info-icon">ℹ</div>
-              <p className="claim-info-text">After submitting, the finder's contact will be revealed to you and your details will be shared with the finder.</p>
+              <p className="claim-info-text">Submit your details — the finder will review your claim and you'll get notified via email.</p>
             </div>
+
             <div className="claim-form">
               <div className="form-group">
                 <label className="form-label"><span className="label-dot" />Your Full Name<span className="label-req">*</span></label>
@@ -743,7 +742,8 @@ function ClaimModal({ doc, onClose, onSuccess }) {
               </div>
               {error && <div className="form-error-box"><span className="error-icon">⚠</span><span>{error}</span></div>}
               <button className="claim-submit-btn" onClick={handleSubmit} disabled={loading}>
-                {loading ? <span className="btn-loading"><span className="loading-dot" /><span className="loading-dot" /><span className="loading-dot" /></span>
+                {loading
+                  ? <span className="btn-loading"><span className="loading-dot" /><span className="loading-dot" /><span className="loading-dot" /></span>
                   : <>Submit Claim Request <span className="btn-arrow">→</span></>}
               </button>
             </div>
@@ -756,15 +756,43 @@ function ClaimModal({ doc, onClose, onSuccess }) {
                 <path d="M20 6L9 17L4 12" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
+
             <h3 className="success-title">Claim Submitted!</h3>
-            <p className="success-body">Your claim has been recorded. Contact the finder directly:</p>
-            {revealedContact && (
-              <div className="contact-reveal">
-                <span className="contact-reveal-label">Finder's Contact</span>
-                <span className="contact-reveal-value">{revealedContact}</span>
+
+            <div className="success-steps">
+              <div className="success-step done">
+                <div className="step-icon">✓</div>
+                <div className="step-text">
+                  <span className="step-label">Claim Submitted</span>
+                  <span className="step-desc">Your request has been recorded</span>
+                </div>
               </div>
-            )}
-            <button className="claim-submit-btn success-done-btn" onClick={() => { onSuccess(); onClose(); }}>Done ✓</button>
+              <div className="success-step-line" />
+              <div className="success-step pending">
+                <div className="step-icon">⏳</div>
+                <div className="step-text">
+                  <span className="step-label">Finder Reviews</span>
+                  <span className="step-desc">Finder will approve or reject</span>
+                </div>
+              </div>
+              <div className="success-step-line" />
+              <div className="success-step pending">
+                <div className="step-icon">📧</div>
+                <div className="step-text">
+                  <span className="step-label">Email Notification</span>
+                  <span className="step-desc">You'll get finder's contact on approval</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="success-note-box">
+              <span className="note-icon">ℹ</span>
+              <p>Once the finder approves your claim, you'll receive an email with their contact details to coordinate the handover.</p>
+            </div>
+
+            <button className="claim-submit-btn success-done-btn" onClick={() => { onSuccess(); onClose(); }}>
+              Got it ✓
+            </button>
           </div>
         )}
       </div>
@@ -849,21 +877,15 @@ function Pagination({ pagination, onPageChange }) {
         Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
       </div>
       <div className="pagination-controls">
-        <button className="pg-btn" onClick={() => onPageChange(page - 1)} disabled={!pagination.hasPrevPage}>
-          ← Prev
-        </button>
+        <button className="pg-btn" onClick={() => onPageChange(page - 1)} disabled={!pagination.hasPrevPage}>← Prev</button>
         {pages.map((p, i) =>
           p === "..." ? (
             <span key={i} className="pg-dots">...</span>
           ) : (
-            <button key={p} className={`pg-btn ${p === page ? "pg-active" : ""}`} onClick={() => onPageChange(p)}>
-              {p}
-            </button>
+            <button key={p} className={`pg-btn ${p === page ? "pg-active" : ""}`} onClick={() => onPageChange(p)}>{p}</button>
           )
         )}
-        <button className="pg-btn" onClick={() => onPageChange(page + 1)} disabled={!pagination.hasNextPage}>
-          Next →
-        </button>
+        <button className="pg-btn" onClick={() => onPageChange(page + 1)} disabled={!pagination.hasNextPage}>Next →</button>
       </div>
     </div>
   );
@@ -871,12 +893,12 @@ function Pagination({ pagination, onPageChange }) {
 
 /* ── Main Page ── */
 function SearchDocumentsPage() {
-  const [documents, setDocuments]     = useState([]);
-  const [pagination, setPagination]   = useState(null);
-  const [loading, setLoading]         = useState(false);
-  const [claimTarget, setClaimTarget] = useState(null);
-  const [filters, setFilters]         = useState({ documentType: "", location: "", name: "" });
-  const [searchDone, setSearchDone]   = useState(false);
+  const [documents, setDocuments]         = useState([]);
+  const [pagination, setPagination]       = useState(null);
+  const [loading, setLoading]             = useState(false);
+  const [claimTarget, setClaimTarget]     = useState(null);
+  const [filters, setFilters]             = useState({ documentType: "", location: "", name: "" });
+  const [searchDone, setSearchDone]       = useState(false);
   const [activeFilters, setActiveFilters] = useState([]);
   const heroRef = useRef(null);
 
@@ -912,21 +934,17 @@ function SearchDocumentsPage() {
   };
 
   const handleFilterChange = (e) => setFilters((p) => ({ ...p, [e.target.name]: e.target.value }));
-
   const handleSearch = (e) => { e.preventDefault(); fetchDocuments(filters, 1); };
-
-  const handleReset = () => {
+  const handleReset  = () => {
     const empty = { documentType: "", location: "", name: "" };
     setFilters(empty);
     fetchDocuments(empty, 1);
   };
-
   const removeFilter = (key) => {
     const updated = { ...filters, [key]: "" };
     setFilters(updated);
     fetchDocuments(updated, 1);
   };
-
   const handlePageChange = (page) => {
     fetchDocuments(filters, page);
     window.scrollTo({ top: 600, behavior: "smooth" });
@@ -934,7 +952,6 @@ function SearchDocumentsPage() {
 
   return (
     <div className="search-page">
-      {/* Hero */}
       <section className="search-hero">
         <div className="hero-bg-layer" ref={heroRef}>
           <div className="hero-orb hero-orb-1" />
@@ -987,7 +1004,6 @@ function SearchDocumentsPage() {
         <div className="hero-scroll-hint"><div className="scroll-line" /><span>scroll to results</span></div>
       </section>
 
-      {/* Results */}
       <section className="results-section">
         {searchDone && (
           <div className="results-header">
@@ -997,7 +1013,6 @@ function SearchDocumentsPage() {
                 {loading ? "Searching…" : `${pagination?.total || 0} document${pagination?.total !== 1 ? "s" : ""} found`}
               </p>
             </div>
-            {/* Active Filter Chips */}
             {activeFilters.length > 0 && (
               <div className="filter-chips">
                 {activeFilters.map((f) => (
@@ -1052,7 +1067,11 @@ function SearchDocumentsPage() {
       </section>
 
       {claimTarget && (
-        <ClaimModal doc={claimTarget} onClose={() => setClaimTarget(null)} onSuccess={() => fetchDocuments(filters, pagination?.page || 1)} />
+        <ClaimModal
+          doc={claimTarget}
+          onClose={() => setClaimTarget(null)}
+          onSuccess={() => fetchDocuments(filters, pagination?.page || 1)}
+        />
       )}
     </div>
   );
